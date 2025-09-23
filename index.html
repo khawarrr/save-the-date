@@ -13,23 +13,24 @@
 
       body {
         font-family: sans-serif;
-        /* This color is sampled from your images for a seamless look */
         background-color: #f0ede9;
-        color: #5b715f; /* A text color that matches your design */
+        color: #5b715f;
+        overflow-x: hidden;
       }
 
-      /* Each image gets its own full-screen section */
+      /* Each section takes up exactly the full viewport */
       .page-section {
-        width: 100%;
-        min-height: 100vh; /* This makes the section at least as tall as the screen */
-        display: flex;
-        flex-direction: column;
-        justify-content: center; /* This vertically centers your image */
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+        overflow: hidden;
       }
 
       .page-section img {
-        width: 100%; /* Image will always fill the screen width */
-        height: auto; /* Height adjusts automatically to prevent distortion */
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* Shows the full image without cropping */
+        object-position: center;
         display: block;
         animation: fadeInUp 1s ease-out both;
       }
@@ -38,13 +39,11 @@
         cursor: pointer;
       }
 
-      .return-link {
-        cursor: pointer;
-        text-decoration: underline;
-        margin-top: -20px; /* Adjust as needed to align with your image */
-        padding: 20px;
-        font-size: 1rem;
-        text-align: center;
+      /* Mobile-specific adjustments */
+      @media (max-width: 768px) {
+        .page-section img {
+          object-position: center center; /* Keep the envelope centered on mobile */
+        }
       }
 
       /* Music toggle button */
@@ -52,7 +51,7 @@
         position: fixed;
         bottom: 20px;
         right: 20px;
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: rgba(0, 0, 0, 0.7);
         color: white;
         border: none;
         border-radius: 50%;
@@ -61,6 +60,13 @@
         font-size: 24px;
         cursor: pointer;
         z-index: 100;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+      }
+
+      #music-toggle:hover {
+        transform: scale(1.1);
+        background-color: rgba(0, 0, 0, 0.8);
       }
 
       @keyframes fadeInUp {
@@ -72,6 +78,20 @@
           opacity: 1;
           transform: translateY(0);
         }
+      }
+
+      /* Smooth scrolling */
+      html {
+        scroll-behavior: smooth;
+      }
+
+      /* Hide scrollbars but keep functionality */
+      body::-webkit-scrollbar {
+        display: none;
+      }
+      body {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
       }
     </style>
   </head>
@@ -85,13 +105,13 @@
 
     <div id="envelope-section" class="page-section">
       <img
-        src="your-envelope-image.png"
+        src="your-envelope-image2.png"
         alt="Time to celebrate! Click to open..."
       />
     </div>
 
     <div id="details-section" class="page-section">
-      <img src="your-details-image.png" alt="Save the Date details" />
+      <img src="your-details-image2.png" alt="Save the Date details" />
     </div>
 
     <script>
@@ -101,16 +121,13 @@
       const musicToggle = document.getElementById("music-toggle");
 
       // --- Navigation Logic ---
-
-      // When you click the envelope, scroll and conditionally play music
       envelopeSection.addEventListener("click", () => {
         detailsSection.scrollIntoView({ behavior: "smooth" });
 
-        // NEW: Only play the music if it's paused or has finished.
-        // This prevents it from restarting if it's already playing.
+        // Only play music if it's paused
         if (music.paused) {
           music.currentTime = 0;
-          music.play();
+          music.play().catch((e) => console.log("Autoplay failed:", e));
           musicToggle.innerHTML = "🎵";
         }
       });
@@ -121,11 +138,9 @@
       });
 
       // --- Background Music Logic ---
-
-      // NEW: A more robust function for the toggle button
       function toggleMusic() {
         if (music.paused) {
-          music.play();
+          music.play().catch((e) => console.log("Music play failed:", e));
           musicToggle.innerHTML = "🎵";
         } else {
           music.pause();
@@ -135,10 +150,24 @@
 
       musicToggle.addEventListener("click", toggleMusic);
 
-      // NEW: Automatically update the button icon when the music finishes on its own
+      // Update button when music ends
       music.addEventListener("ended", () => {
         musicToggle.innerHTML = "🔇";
       });
+
+      // Prevent zoom on double-tap for better mobile experience
+      let lastTouchEnd = 0;
+      document.addEventListener(
+        "touchend",
+        function (event) {
+          var now = new Date().getTime();
+          if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+          }
+          lastTouchEnd = now;
+        },
+        false
+      );
     </script>
   </body>
 </html>
