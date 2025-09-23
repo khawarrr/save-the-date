@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Save the Date!</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: sans-serif;
+        /* This color is sampled from your images for a seamless look */
+        background-color: #f0ede9;
+        color: #5b715f; /* A text color that matches your design */
+      }
+
+      /* Each image gets its own full-screen section */
+      .page-section {
+        /* This simpler style lets the image flow naturally */
+        width: 100%;
+      }
+
+      .page-section img {
+        width: 100%; /* Image will always fill the screen width */
+        height: auto; /* Height adjusts automatically to prevent distortion */
+        display: block;
+      }
+
+      #envelope-section {
+        cursor: pointer;
+      }
+
+      .return-link {
+        cursor: pointer;
+        text-decoration: underline;
+        margin-top: -20px; /* Adjust as needed to align with your image */
+        padding: 20px;
+        font-size: 1rem;
+        text-align: center;
+      }
+
+      /* Music toggle button */
+      #music-toggle {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+        cursor: pointer;
+        z-index: 100;
+      }
+    </style>
+  </head>
+  <body>
+    <audio id="background-music" loop>
+      <source src="your-music-file2mp3.mp3" type="audio/mpeg" />
+      Your browser does not support the audio element.
+    </audio>
+
+    <button id="music-toggle">🎵</button>
+
+    <div id="envelope-section" class="page-section">
+      <img
+        src="your-envelope-image.png"
+        alt="Time to celebrate! Click to open..."
+      />
+    </div>
+
+    <div id="details-section" class="page-section">
+      <img src="your-details-image.png" alt="Save the Date details" />
+    </div>
+
+    <script>
+      const envelopeSection = document.getElementById("envelope-section");
+      const detailsSection = document.getElementById("details-section");
+      const music = document.getElementById("background-music");
+      const musicToggle = document.getElementById("music-toggle");
+      let isPlaying = false;
+
+      // --- Navigation Logic ---
+      // When you click the envelope, smoothly scroll to the details
+      envelopeSection.addEventListener("click", () => {
+        detailsSection.scrollIntoView({ behavior: "smooth" });
+      });
+
+      // When you click anywhere in the details section, scroll back to the top
+      detailsSection.addEventListener("click", () => {
+        envelopeSection.scrollIntoView({ behavior: "smooth" });
+      });
+
+      // --- Background Music Logic ---
+      function toggleMusic() {
+        if (isPlaying) {
+          music.pause();
+          musicToggle.innerHTML = "🔇";
+        } else {
+          music.play();
+          musicToggle.innerHTML = "🎵";
+        }
+        isPlaying = !isPlaying;
+      }
+
+      musicToggle.addEventListener("click", toggleMusic);
+
+      // Try to autoplay music when the user first clicks on the envelope
+      envelopeSection.addEventListener(
+        "click",
+        () => {
+          if (!isPlaying) {
+            music.play();
+            isPlaying = true;
+            musicToggle.innerHTML = "🎵";
+          }
+        },
+        { once: true }
+      ); // '{ once: true }' ensures this only happens on the very first click
+    </script>
+  </body>
+</html>
