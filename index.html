@@ -20,14 +20,18 @@
 
       /* Each image gets its own full-screen section */
       .page-section {
-        /* This simpler style lets the image flow naturally */
         width: 100%;
+        min-height: 100vh; /* This makes the section at least as tall as the screen */
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* This vertically centers your image */
       }
 
       .page-section img {
         width: 100%; /* Image will always fill the screen width */
         height: auto; /* Height adjusts automatically to prevent distortion */
         display: block;
+        animation: fadeInUp 1s ease-out both;
       }
 
       #envelope-section {
@@ -58,10 +62,21 @@
         cursor: pointer;
         z-index: 100;
       }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
     </style>
   </head>
   <body>
-    <audio id="background-music" loop>
+    <audio id="background-music">
       <source src="your-music-file2mp3.mp3" type="audio/mpeg" />
       Your browser does not support the audio element.
     </audio>
@@ -84,12 +99,20 @@
       const detailsSection = document.getElementById("details-section");
       const music = document.getElementById("background-music");
       const musicToggle = document.getElementById("music-toggle");
-      let isPlaying = false;
 
       // --- Navigation Logic ---
-      // When you click the envelope, smoothly scroll to the details
+
+      // When you click the envelope, scroll and conditionally play music
       envelopeSection.addEventListener("click", () => {
         detailsSection.scrollIntoView({ behavior: "smooth" });
+
+        // NEW: Only play the music if it's paused or has finished.
+        // This prevents it from restarting if it's already playing.
+        if (music.paused) {
+          music.currentTime = 0;
+          music.play();
+          musicToggle.innerHTML = "🎵";
+        }
       });
 
       // When you click anywhere in the details section, scroll back to the top
@@ -98,31 +121,24 @@
       });
 
       // --- Background Music Logic ---
+
+      // NEW: A more robust function for the toggle button
       function toggleMusic() {
-        if (isPlaying) {
-          music.pause();
-          musicToggle.innerHTML = "🔇";
-        } else {
+        if (music.paused) {
           music.play();
           musicToggle.innerHTML = "🎵";
+        } else {
+          music.pause();
+          musicToggle.innerHTML = "🔇";
         }
-        isPlaying = !isPlaying;
       }
 
       musicToggle.addEventListener("click", toggleMusic);
 
-      // Try to autoplay music when the user first clicks on the envelope
-      envelopeSection.addEventListener(
-        "click",
-        () => {
-          if (!isPlaying) {
-            music.play();
-            isPlaying = true;
-            musicToggle.innerHTML = "🎵";
-          }
-        },
-        { once: true }
-      ); // '{ once: true }' ensures this only happens on the very first click
+      // NEW: Automatically update the button icon when the music finishes on its own
+      music.addEventListener("ended", () => {
+        musicToggle.innerHTML = "🔇";
+      });
     </script>
   </body>
 </html>
