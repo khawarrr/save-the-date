@@ -28,11 +28,20 @@
 
       .page-section img {
         width: 100%;
-        height: 100%;
-        object-fit: cover; /* This fills the entire screen */
-        object-position: center center; /* Start with center positioning */
+        height: 100vh;
+        object-fit: cover;
         display: block;
-        animation: fadeInUp 1s ease-out both;
+
+        /* The NEW animation setup */
+        opacity: 0; /* Start invisible */
+        transform: translateY(30px); /* Start slightly lower */
+        transition: opacity 1s ease-out, transform 1s ease-out; /* Define the transition */
+      }
+
+      .page-section.visible img {
+        /* The final state when the element is visible */
+        opacity: 1;
+        transform: translateY(0);
       }
 
       #envelope-section {
@@ -137,16 +146,12 @@
       // --- Navigation Logic ---
       envelopeSection.addEventListener("click", () => {
         detailsSection.scrollIntoView({ behavior: "smooth" });
-
-        // Only play music if it's paused
         if (music.paused) {
           music.currentTime = 0;
           music.play().catch((e) => console.log("Autoplay failed:", e));
           musicToggle.innerHTML = "🎵";
         }
       });
-
-      // When you click anywhere in the details section, scroll back to the top
       detailsSection.addEventListener("click", () => {
         envelopeSection.scrollIntoView({ behavior: "smooth" });
       });
@@ -161,27 +166,35 @@
           musicToggle.innerHTML = "🔇";
         }
       }
-
       musicToggle.addEventListener("click", toggleMusic);
-
-      // Update button when music ends
       music.addEventListener("ended", () => {
         musicToggle.innerHTML = "🔇";
       });
 
-      // Prevent zoom on double-tap for better mobile experience
-      let lastTouchEnd = 0;
-      document.addEventListener(
-        "touchend",
-        function (event) {
-          var now = new Date().getTime();
-          if (now - lastTouchEnd <= 300) {
-            event.preventDefault();
-          }
-          lastTouchEnd = now;
+      // --- NEW: Animate on Scroll Logic ---
+      const sections = document.querySelectorAll(".page-section");
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            // If the section is on screen
+            if (entry.isIntersecting) {
+              // Add the 'visible' class to trigger the animation
+              entry.target.classList.add("visible");
+              // Stop watching this section so the animation doesn't re-run
+              observer.unobserve(entry.target);
+            }
+          });
         },
-        false
+        {
+          threshold: 0.1, // Trigger when 10% of the section is visible
+        }
       );
+
+      // Tell the observer to watch each section
+      sections.forEach((section) => {
+        observer.observe(section);
+      });
     </script>
   </body>
 </html>
